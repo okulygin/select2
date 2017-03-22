@@ -782,10 +782,6 @@ the specific language governing permissions and limitations under the Apache Lic
       installFilteredMouseMove(this.results);
 
       this.dropdown.on("mousemove-filtered", resultsSelector, this.bind(this.highlightUnderEvent));
-      this.dropdown.on("touchstart touchmove touchend", resultsSelector, this.bind(function (event) {
-        this._touchEvent = true;
-        this.highlightUnderEvent(event);
-      }));
       this.dropdown.on("touchmove", resultsSelector, this.bind(this.touchMoved));
       this.dropdown.on("touchstart touchend", resultsSelector, this.bind(this.clearTouchMoved));
 
