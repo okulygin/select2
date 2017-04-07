@@ -782,9 +782,10 @@ the specific language governing permissions and limitations under the Apache Lic
       installFilteredMouseMove(this.results);
 
       var backButton = this.container.find(".select2-back-button");
-      var opts = this.opts;
+      var that = this;
       backButton.on("click", function() {
-        opts.onBackButtonClicked();
+        that.close();
+        that.opts.onBackButtonClicked();
       });
 
       this.dropdown.on("mousemove-filtered", resultsSelector, this.bind(this.highlightUnderEvent));
