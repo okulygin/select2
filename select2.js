@@ -193,6 +193,50 @@ the specific language governing permissions and limitations under the Apache Lic
     });
   }
 
+  function addInput(select2) {
+    var that = select2;
+    if (!that) {
+      return;
+    }
+
+    var inputPlaceHolder = that.container.find(".select2-input-placeholder");
+    if (inputPlaceHolder) {
+      inputPlaceHolder.append(
+        [
+          "<div class='select2-search'>",
+          "    <label for='' class='select2-offscreen'></label>",
+          "    <span class='select2-back-button'></span>",
+          "    <input type='text' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' class='select2-input' role='combobox' aria-expanded='true'",
+          "    aria-autocomplete='list' />",
+          "</div>"
+        ].join(""));
+
+      var backButton = that.container.find(".select2-back-button");
+      if (backButton) {
+        backButton.on("click", function () {
+          that.close();
+          that.opts.onBackButtonClicked();
+        });
+      }
+
+      // do not propagate change event from the search field out of the component
+      $(that.container).on("change", ".select2-input", function (e) { e.stopPropagation(); });
+      $(that.dropdown).on("change", ".select2-input", function (e) { e.stopPropagation(); });
+
+      that.search = that.container.find(".select2-input-placeholder input.select2-input");
+      installKeyUpChangeEvent(that.search);
+
+      that.search.on("keyup-change input paste", that.bind(that.updateResults));
+      that.search.on("focus", function () { that.search.addClass("select2-focused"); });
+      that.search.on("blur", function () { that.search.removeClass("select2-focused"); });
+
+      if (that.opts.maximumInputLength !== null) {
+        that.search.attr("maxlength", that.opts.maximumInputLength);
+      }
+
+      that.search.attr("placeholder", that.opts.searchInputPlaceholder);
+    }
+  }
 
   /**
    * filters mouse events so an event is fired only if the mouse moved.
@@ -783,10 +827,12 @@ the specific language governing permissions and limitations under the Apache Lic
 
       var backButton = this.container.find(".select2-back-button");
       var that = this;
-      backButton.on("click", function() {
-        that.close();
-        that.opts.onBackButtonClicked();
-      });
+      if (backButton) {
+        backButton.on("click", function () {
+          that.close();
+          that.opts.onBackButtonClicked();
+        });
+      }
 
       this.dropdown.on("mousemove-filtered", resultsSelector, this.bind(this.highlightUnderEvent));
       this.dropdown.on("touchmove", resultsSelector, this.bind(this.touchMoved));
@@ -2627,6 +2673,7 @@ the specific language governing permissions and limitations under the Apache Lic
         "  </li>",
         "</ul>",
         "<div class='select2-drop select2-drop-multi select2-display-none'>",
+        "   <div class='select2-input-placeholder'></div>",
         "   <ul class='select2-results'>",
         "   </ul>",
         "</div>"].join(""));
@@ -3512,6 +3559,7 @@ the specific language governing permissions and limitations under the Apache Lic
     adaptContainerCssClass: function (c) { return c; },
     adaptDropdownCssClass: function (c) { return null; },
     onBackButtonClicked: function () { return null; },
+    addInput: function (instance) { addInput(instance); },
     nextSearchTerm: function (selectedObject, currentSearchTerm) { return undefined; },
     searchInputPlaceholder: '',
     createSearchChoicePosition: 'top',
